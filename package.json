@@ -1,0 +1,27 @@
+{
+  "name": "arbitro-priorizacion-spin-frontend",
+  "version": "0.1.0",
+  "description": "Frontend for Árbitro de priorización — Spin",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "spin",
+    "product",
+    "prioritization",
+    "evaluation"
+  ],
+  "author": "Spin team",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0"
+  }
+}
