@@ -4,7 +4,7 @@ import Semaforo from '../components/Semaforo';
 import Criterio from '../components/Criterio';
 import { updateExpediente } from '../api';
 
-export default function EvaluationPage({ expediente, onBack }) {
+export default function EvaluationPage({ expediente, onBack, onNext }) {
   const [currentStep, setCurrentStep] = useState('lectura');
   const [votos, setVotos] = useState(expediente.votos || {});
   const [preguntas, setPreguntas] = useState(expediente.preguntas || []);
@@ -138,6 +138,7 @@ export default function EvaluationPage({ expediente, onBack }) {
                   borderRadius: '20px',
                   padding: '22px',
                   marginTop: '22px',
+                  marginBottom: '22px',
                 }}
               >
                 <h3 style={{ margin: '0 0 16px', fontSize: '16.5px', color: '#210B50' }}>
@@ -158,6 +159,28 @@ export default function EvaluationPage({ expediente, onBack }) {
                   ))}
                 </div>
               </div>
+
+              {/* Botón siguiente */}
+              <button
+                onClick={onNext}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(120deg, #5601D9, #7B2BEA 62%, #FC630E)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '24px 28px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 26px rgba(86, 1, 217, 0.26)',
+                  transition: 'all 0.15s',
+                }}
+                onMouseOver={e => (e.target.style.transform = 'translateY(-2px)', e.target.style.boxShadow = '0 14px 34px rgba(86, 1, 217, 0.32)')}
+                onMouseOut={e => (e.target.style.transform = 'none', e.target.style.boxShadow = '0 8px 26px rgba(86, 1, 217, 0.26)')}
+              >
+                Responder las preguntas →
+              </button>
             </>
           )}
 
