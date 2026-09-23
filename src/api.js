@@ -1,104 +1,61 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// LocalStorage-based API client (no backend needed)
 
-let token = localStorage.getItem('auth_token') || import.meta.env.VITE_AUTH_TOKEN;
+export async function login(email, nombre, squad) {
+  const user = {
+    id: `user_${Date.now()}`,
+    email,
+    nombre,
+    squad,
+  };
 
-export function setToken(newToken) {
-  token = newToken;
-  localStorage.setItem('auth_token', newToken);
-}
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('token', `token_${Date.now()}`);
 
-export function getToken() {
-  return token;
-}
-
-function getHeaders() {
   return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    token: localStorage.getItem('token'),
+    user,
   };
 }
 
-async function request(endpoint, options = {}) {
-  const url = `${API_URL}${endpoint}`;
-  const response = await fetch(url, {
-    ...options,
-    headers: getHeaders(),
-  });
+export async function getExpedientes() {
+  const email = JSON.parse(localStorage.getItem('user') || '{}').email;
+  const allExpedientes = JSON.parse(localStorage.getItem('expedientes') || '[]');
+  return allExpedientes.filter(e => e.email === email);
+}
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || `API error: ${response.status}`);
+export async function createExpediente(data) {
+  const expediente = {
+    id: `exp_${Date.now()}`,
+    email: JSON.parse(localStorage.getItem('user') || '{}').email,
+    ...data,
+  };
+
+  const expedientes = JSON.parse(localStorage.getItem('expedientes') || '[]');
+  expedientes.push(expediente);
+  localStorage.setItem('expedientes', JSON.stringify(expedientes));
+
+  return expediente;
+}
+
+export async function getExpedienteById(id) {
+  const expedientes = JSON.parse(localStorage.getItem('expedientes') || '[]');
+  return expedientes.find(e => e.id === id);
+}
+
+export async function updateExpediente(id, updates) {
+  const expedientes = JSON.parse(localStorage.getItem('expedientes') || '[]');
+  const idx = expedientes.findIndex(e => e.id === id);
+  if (idx !== -1) {
+    expedientes[idx] = { ...expedientes[idx], ...updates };
+    localStorage.setItem('expedientes', JSON.stringify(expedientes));
+    return expedientes[idx];
   }
-
-  return response.json();
-}
-
-// Auth
-export async function login(email, nombre, squad) {
-  const data = await request('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, nombre, squad }),
-  });
-  setToken(data.token);
-  return data;
-}
-
-export async function verifyToken() {
-  return request('/auth/verify', { method: 'GET' });
-}
-
-// Expedientes
-export async function createExpediente(expediente) {
-  return request('/expedientes', {
-    method: 'POST',
-    body: JSON.stringify(expediente),
-  });
-}
-
-export async function getExpedientes(params = {}) {
-  const query = new URLSearchParams(params).toString();
-  return request(`/expedientes${query ? '?' + query : ''}`);
-}
-
-export async function getExpediente(id) {
-  return request(`/expedientes/${id}`);
-}
-
-export async function updateExpediente(id, data) {
-  return request(`/expedientes/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  return null;
 }
 
 export async function deleteExpediente(id) {
-  return request(`/expedientes/${id}`, { method: 'DELETE' });
-}
-
-// Corpus
-export async function getCorpus(params = {}) {
-  const query = new URLSearchParams(params).toString();
-  return request(`/corpus${query ? '?' + query : ''}`);
-}
-
-export async function createInitiativa(iniciativa) {
-  return request('/corpus', {
-    method: 'POST',
-    body: JSON.stringify(iniciativa),
-  });
-}
-
-export async function getInitiativa(id) {
-  return request(`/corpus/${id}`);
-}
-
-export async function updateInitiativa(id, data) {
-  return request(`/corpus/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteInitiativa(id) {
-  return request(`/corpus/${id}`, { method: 'DELETE' });
+  const expedientes = JSON.parse(localStorage.getItem('expedientes') || '[]');
+  const filtered = expedientes.filter(e => e.id !== id);
+  localStorage.setItem('expedientes', JSON.stringify(filtered));
+  return true;
 }
